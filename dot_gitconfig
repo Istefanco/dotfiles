@@ -1,0 +1,37 @@
+[blame]
+	ignoreRevsFile = .git-blame-ignore-revs
+[core]
+	editor = code --wait
+	pager = delta
+[interactive]
+	diffFilter = delta --color-only
+[merge]
+    conflictstyle = zdiff3
+[diff]
+    colorMoved = default
+[delta]
+    navigate = true    # use n and N to move between diff sections
+[user]
+	email = istefanco@gmail.com
+	name = Igor Stefanco
+[push]
+	autoSetupRemote = true
+[alias]
+  co = checkout
+  st = status
+  br = branch
+  aa = add --all
+  rom = pull --rebase origin main
+  l = log \
+    --abbrev-commit  \
+    --decorate=short \
+    --decorate-refs=tags/CD-* \
+    --pretty=format:'%C(auto)%h  %C(bold blue)%an%Creset %C(auto)%d %s %Cgreen(%cr)'
+  dm = diff origin/main
+  pf = push --force-with-lease
+  wip = !git add --all && git commit -m \"WIP\"
+  am = commit --amend --no-edit
+[url "ssh://git@github.com/"]
+	insteadOf = https://github.com/
+[includeIf "gitdir:~/work/"]
+    path = .gitconfig-work
