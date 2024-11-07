@@ -40,7 +40,6 @@ zi for \
   direnv/direnv
 
 # Add in snippets
-zinit snippet OMZP::sudo
 zinit snippet OMZP::aws
 zinit snippet OMZP::command-not-found
 
@@ -96,16 +95,16 @@ eval "$(zoxide init --cmd cd zsh)"
 
 export EDITOR="code --wait"
 
+# Use 1Password for SSH keys
+export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+
 # Silences direnv output when changing directories. Its pretty spammy and without this the p10k instant prompt will mad.
 export DIRENV_LOG_FORMAT=""
 
 # asdf-direnv plugin to load asdf when changing directories. Suppossed to be faster than loading asdf the usual way.
 #### .envrc ####
 # use asdf
-################
 source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
 
-# Use 1Password for SSH keys
-export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
 # 1Password Plugin manager
 source ${XDG_CONFIG_HOME:-$HOME/.config}/op/plugins.sh
