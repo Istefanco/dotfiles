@@ -81,7 +81,9 @@ source ${XDG_CONFIG_HOME:-$HOME/.config}/op/plugins.sh
 # Use 1Password for SSH keys
 export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
 
-# Work
+
+{{- if eq .computer "work-mac" }}
+
 export AWS_DEFAULT_PROFILE=dev.use1
 export AWS_PROFILE=dev.use1
 export AWS_SDK_LOAD_CONFIG=true
@@ -102,3 +104,5 @@ eval "$(pipelinectl completion zsh)"
 alias pc="pipelinectl"
 alias lo="lotus"
 alias testdb="RACK_ENV=test RAILS_ENV=test bundle exec rake -t db:test:load_schema db:seed"
+
+{{- end }}
