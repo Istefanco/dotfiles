@@ -70,8 +70,15 @@ alias c='clear'
 # Shell integrations
 eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
+
 # Activate mise-en-place https://mise.jdx.dev/
+{{- if eq .computer "work-mac" }}
 eval "$(/Users/igor.stefanco/.local/bin/mise activate zsh)"
+{{- end }}
+
+{{- if eq .computer "mac-mini" }}
+eval "$(mise activate zsh)"
+{{- end }}
 
 export EDITOR="code --wait"
 export PATH="$HOME/bin:$PATH"
