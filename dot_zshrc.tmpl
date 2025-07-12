@@ -72,11 +72,12 @@ eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
 
 # Activate mise-en-place https://mise.jdx.dev/
-{{- if eq .computer "work-mac" }}
+{{- if eq .chezmoi.hostname "MD6YMFMWKD" }}
 eval "$(/Users/igor.stefanco/.local/bin/mise activate zsh)"
 {{- end }}
 
-{{- if eq .computer "mac-mini" }}
+# The `hostname` command will include the domain ".local" but it should be omitted here
+{{- if eq .chezmoi.hostname "Igors-Mac-mini" }}
 eval "$(mise activate zsh)"
 {{- end }}
 
@@ -89,7 +90,7 @@ source ${XDG_CONFIG_HOME:-$HOME/.config}/op/plugins.sh
 export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
 
 
-{{- if eq .computer "work-mac" }}
+{{- if eq .chezmoi.hostname "MD6YMFMWKD" }}
 
 export AWS_DEFAULT_PROFILE=dev.use1
 export AWS_PROFILE=dev.use1
