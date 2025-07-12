@@ -1,7 +1,7 @@
 [blame]
 	ignoreRevsFile = .git-blame-ignore-revs
 [core]
-	editor = code --wait
+	editor = cursor --wait --add
 	pager = delta
 [interactive]
 	diffFilter = delta --color-only
