@@ -72,7 +72,7 @@ eval "$(fzf --zsh)"
 eval "$(zoxide init --cmd cd zsh)"
 
 # Activate mise-en-place https://mise.jdx.dev/
-{{- if eq .chezmoi.hostname "MD6YMFMWKD" }}
+{{- if and (eq .chezmoi.os "darwin") (eq .chezmoi.username "igor.stefanco") }}
 eval "$(/Users/igor.stefanco/.local/bin/mise activate zsh)"
 {{- end }}
 
@@ -89,9 +89,7 @@ source ${XDG_CONFIG_HOME:-$HOME/.config}/op/plugins.sh
 # Use 1Password for SSH keys
 export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
 
-
-{{- if eq .chezmoi.hostname "MD6YMFMWKD" }}
-
+{{- if and (eq .chezmoi.os "darwin") (eq .chezmoi.username "igor.stefanco") }}
 export AWS_DEFAULT_PROFILE=dev.use1
 export AWS_PROFILE=dev.use1
 export AWS_SDK_LOAD_CONFIG=true
