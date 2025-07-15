@@ -68,7 +68,16 @@ alias ls='ls --color'
 alias c='clear'
 
 # Shell integrations
+# bigboy installed this directly via git
+{{- if eq .chezmoi.hostname "bigboy" }}
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+{{- end }}
+
+# the macs have it installed via brew
+{{- if eq .chezmoi.os "darwin" }}
 eval "$(fzf --zsh)"
+{{- end }}
+
 eval "$(zoxide init --cmd cd zsh)"
 
 # Activate mise-en-place https://mise.jdx.dev/
