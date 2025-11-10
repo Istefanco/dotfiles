@@ -1,21 +1,3 @@
-[font]
-size = 16
-
-[keyboard]
-bindings = [
-    # Jump words with option left/right
-    { key = "Right", mods = "Alt", chars = "\u001BF" },
-    { key = "Left",  mods = "Alt", chars = "\u001BB" },
-]
-
-[font.normal]
-# Powerlevel10k support
-family = "MesloLGS NF"
-
-[env]
-TERM = "xterm-256color"
-
-# catppuccin-macchiato
 [colors.primary]
 background = "#24273a"
 foreground = "#cad3f5"
