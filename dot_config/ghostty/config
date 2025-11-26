@@ -1,2 +1,4 @@
 font-size = 16
 keybind = shift+enter=text:\n
+
+theme = catppuccin-frappe.conf
