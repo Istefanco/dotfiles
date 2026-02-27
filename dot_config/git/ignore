@@ -3,3 +3,5 @@
 
 # Ignore editor files
 .vscode/
+
+**/.claude/settings.local.json

@@ -6,6 +6,7 @@ bindings = [
     # Jump words with option left/right
     { key = "Right", mods = "Alt", chars = "\u001BF" },
     { key = "Left",  mods = "Alt", chars = "\u001BB" },
+    { key = "Return", mods = "Shift", chars = "\u001b\r" }
 ]
 
 [font.normal]

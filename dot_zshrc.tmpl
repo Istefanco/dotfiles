@@ -90,7 +90,7 @@ eval "$(/Users/igor.stefanco/.local/bin/mise activate zsh)"
 eval "$(mise activate zsh)"
 {{- end }}
 
-export EDITOR="cursor --wait --add"
+export EDITOR="code --wait"
 export PATH="$HOME/bin:$PATH"
 
 # 1Password Plugin manager
@@ -119,5 +119,7 @@ eval "$(pipelinectl completion zsh)"
 alias pc="pipelinectl"
 alias lo="lotus"
 alias testdb="RACK_ENV=test RAILS_ENV=test bundle exec rake -t db:test:load_schema db:seed"
+
+export PATH="/Users/igor.stefanco/.rd/bin:$PATH"
 
 {{- end }}
