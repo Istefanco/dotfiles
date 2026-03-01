@@ -31,8 +31,6 @@
   pf = push --force-with-lease
   wip = !git add --all && git commit -m \"WIP\"
   am = commit --amend --no-edit
-[url "ssh://git@github.com/"]
-	insteadOf = https://github.com/
 [includeIf "gitdir:~/work/"]
     path = .gitconfig-work
 [init]

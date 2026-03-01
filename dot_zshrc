@@ -1,0 +1,106 @@
+# History
+HISTFILE=~/.zsh_history
+HISTSIZE=50000
+SAVEHIST=50000
+HISTORY_IGNORE="(ls|ll|la|cd|pwd|exit|clear|history|top|htop|rm|cp|mv|less|more|vim|code|which|man|df|du|free|ps|kill|:q)"
+
+setopt EXTENDED_HISTORY HIST_EXPIRE_DUPS_FIRST HIST_FCNTL_LOCK HIST_FIND_NO_DUPS \
+    HIST_IGNORE_ALL_DUPS HIST_IGNORE_SPACE HIST_NO_FUNCTIONS \
+    HIST_NO_STORE HIST_REDUCE_BLANKS HIST_SAVE_NO_DUPS HIST_VERIFY \
+    INC_APPEND_HISTORY
+unsetopt HIST_BEEP
+
+# Plugins via sheldon (https://sheldon.cli.rs)
+builtin source <(sheldon source)
+
+# Set emacs keybindings
+bindkey -e
+
+# Completion behavior
+zstyle ':completion:*' completer _complete _match _approximate
+zstyle ':completion:*' verbose true
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' special-dirs true
+zstyle ':completion:*' squeeze-slashes true
+
+# Completion performance
+zstyle ':completion:*' accept-exact '*(N)'
+zstyle ':completion:*' file-sort modification
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/.zcompcache"
+
+# Completion visuals
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*' menu no
+zstyle ':completion:*:descriptions' format '-- %d --'
+zstyle ':completion:*:messages' format '%F{purple}-- %d --%f'
+zstyle ':completion:*:warnings' format '%F{red}-- no matches found --%f'
+
+# Hide internal functions and sort tweaks
+zstyle ':completion:*:functions' ignored-patterns '(_*|pre(cmd|exec))'
+zstyle ':completion:*:git-checkout:*' sort false
+zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm"
+
+# fzf-tab settings
+zstyle ':fzf-tab:*' fzf-bindings 'space:accept'
+zstyle ':fzf-tab:*' switch-group ',' '.'
+
+# fzf-tab: process preview (kill)
+zstyle ':fzf-tab:complete:kill:argument-rest' fzf-preview \
+    '[[ $group == "[process ID]" ]] && ps -p $word -o comm='
+zstyle ':fzf-tab:complete:kill:argument-rest' fzf-flags --preview-window=down:10:wrap
+
+# fzf-tab: directory preview (cd/zoxide)
+zstyle ':fzf-tab:complete:cd:*' fzf-preview \
+    'eza -1lh --icons --git-ignore --group-directories-first --sort=accessed --color=always $realpath'
+zstyle ':fzf-tab:complete:cd:*' fzf-flags --height=35% --preview-window=right:65%
+
+# fzf-tab: environment variable preview
+zstyle ':fzf-tab:complete:(-parameter-|-brace-parameter-|export|unset|expand):*' \
+    fzf-preview 'echo ${(P)word}'
+zstyle ':fzf-tab:complete:(-parameter-|-brace-parameter-|export|unset|expand):*' \
+    fzf-flags --preview-window=down:10:wrap
+
+# fzf-tab: man/tldr preview
+zstyle ':fzf-tab:complete:(\\|*/|)man:*' fzf-preview 'man $word'
+zstyle ':fzf-tab:complete:tldr:argument-1' fzf-preview 'tldr --color always $word'
+
+# fzf-tab: command preview (tries tldr, then man, then which)
+zstyle ':fzf-tab:complete:-command-:*' fzf-preview \
+    '(out=$(tldr --color always "$word" 2>/dev/null) && echo "$out" || \
+    out=$(MANWIDTH=$FZF_PREVIEW_COLUMNS man "$word" 2>/dev/null) && echo "$out" || \
+    out=$(which "$word") && echo "$out" || echo "${(P)word}")'
+zstyle ':fzf-tab:complete:-command-:*' fzf-flags --height=60% --preview-window=right:65%:wrap
+
+# fzf-tab: file preview
+zstyle ':fzf-tab:complete:(cat|bat|code|vim|eza|ls|fd|find|cp|mv|rm):argument-rest' \
+    fzf-preview 'less ${(Q)realpath}'
+zstyle ':fzf-tab:complete:(cat|bat|code|vim):argument-rest' fzf-flags --height=75% --preview-window=right:75%
+zstyle ':fzf-tab:complete:(eza|ls|fd|find|cp|mv|rm):argument-rest' fzf-flags --height=45% --preview-window=right:65%
+
+# fzf-tab: git preview
+zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview 'git diff $word | delta'
+zstyle ':fzf-tab:complete:git-log:*' fzf-preview 'git log --color=always $word'
+zstyle ':fzf-tab:complete:git-help:*' fzf-preview 'git help $word | bat -plman --color=always'
+zstyle ':fzf-tab:complete:git-show:*' fzf-preview \
+    'case "$group" in
+    "commit tag") git show --color=always $word ;;
+    *) git show --color=always $word | delta ;;
+    esac'
+zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
+    'case "$group" in
+    "modified file") git diff $word | delta ;;
+    "recent commit object name") git show --color=always $word | delta ;;
+    *) git log --color=always $word ;;
+    esac'
+zstyle ':fzf-tab:complete:git-*:*' fzf-flags --height=85% --preview-window=right:75%:wrap
+
+# Aliases
+alias ls='ls --color'
+alias c='clear'
+
+# 1Password Plugin manager
+source ${XDG_CONFIG_HOME:-$HOME/.config}/op/plugins.sh
+# Use 1Password for SSH keys
+export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock

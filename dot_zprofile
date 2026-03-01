@@ -1,0 +1,47 @@
+# Deduplicate PATH and FPATH entries
+typeset -U PATH path FPATH fpath
+
+# XDG Base Directory Specification
+export XDG_CACHE_HOME="$HOME/.cache"
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_STATE_HOME="$HOME/.local/state"
+
+# Homebrew
+if [[ -f "/opt/homebrew/bin/brew" ]] then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_NO_ANALYTICS=1
+
+# PATH
+path=(
+    $HOME/bin(N)
+    $path
+)
+
+# System utilities
+export EDITOR="code --wait"
+export VISUAL="code --wait"
+export PAGER=less
+
+# FZF Configuration
+export FZF_DEFAULT_COMMAND='fd --type file --follow --hidden --exclude .git --exclude node_modules'
+export FZF_DEFAULT_OPTS='--height=35% --layout=reverse --border --cycle --multi --info=inline'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_CTRL_T_OPTS="--height=90% --preview-window=right:65% \
+--preview '([[ -f {} ]] && bat --style=numbers,header,grid --color=always {}) || ([[ -d {} ]] && (eza --tree -I node_modules --git-ignore {} | less)) || echo {} 2>/dev/null | head -200' \
+--bind '?:toggle-preview,ctrl-a:select-all' \
+--bind 'tab:toggle+down,shift-tab:toggle+up'"
+export FZF_CTRL_R_OPTS='--prompt="History> " --preview="echo {}" --preview-window=down:3:wrap'
+
+# Plugin config (set before plugins load)
+typeset -g ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=30
+typeset -g ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=240'
+typeset -g ZSH_AUTOSUGGEST_MANUAL_REBIND=true
+typeset -g ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+
+typeset -g HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=true
+typeset -g HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND='fg=#00cc00,bold'
+typeset -g HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND='fg=#FF5C57,bold'

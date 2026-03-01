@@ -1,0 +1,70 @@
+shell = "zsh"
+
+[templates]
+defer = """{{ hooks?.pre | nl }}{% for file in files %}zsh-defer source "{{ file }}"\n{% endfor %}{{ hooks?.post | nl }}"""
+defer-more = """{{ hooks?.pre | nl }}{% for file in files %}zsh-defer -t 0.5 source "{{ file }}"\n{% endfor %}{{ hooks?.post | nl }}"""
+fpath = 'fpath=( "{{ dir }}" $fpath )'
+path = 'path=( "{{ dir }}" $path )'
+
+# Paths
+# -----
+
+[plugins.git-open]
+github = "paulirish/git-open"
+apply = ["path"]
+
+[plugins.zsh-bench]
+github = "romkatv/zsh-bench"
+apply = ["path"]
+
+# Completions
+# -----------
+
+[plugins.zsh-completions]
+github = "zsh-users/zsh-completions"
+apply = ["fpath"]
+
+[plugins.fzf]
+github = "junegunn/fzf"
+use = ["{completion,key-bindings}.zsh"]
+
+# Sourced
+# -------
+
+[plugins.zsh-defer]
+github = "romkatv/zsh-defer"
+
+[plugins.compinit]
+inline = "autoload -Uz compinit && zsh-defer compinit"
+
+# Deferred plugins
+# ----------------
+
+[plugins.zoxide]
+inline = "zsh-defer -c 'eval \"$(zoxide init zsh --cmd cd)\"'"
+
+# fzf-tab needs to be loaded after compinit, but before plugins which will wrap
+# widgets, such as zsh-autosuggestions or fast-syntax-highlighting
+[plugins.fzf-tab]
+github = "Aloxaf/fzf-tab"
+use = ["{{ name }}.plugin.zsh"]
+apply = ["defer"]
+
+[plugins.fast-syntax-highlighting]
+github = "zdharma-continuum/fast-syntax-highlighting"
+apply = ["defer"]
+
+# More deferred plugins (0.5s delay)
+# -----------------------------------
+
+# Must load AFTER fast-syntax-highlighting
+[plugins.zsh-history-substring-search]
+github = "zsh-users/zsh-history-substring-search"
+use = ["{{ name }}.zsh"]
+apply = ["defer-more"]
+hooks.post = "bindkey '^[[A' history-substring-search-up; bindkey '^[[B' history-substring-search-down"
+
+[plugins.zsh-autosuggestions]
+github = "zsh-users/zsh-autosuggestions"
+use = ["{{ name }}.zsh"]
+apply = ["defer-more"]
