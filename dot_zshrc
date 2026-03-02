@@ -95,12 +95,3 @@ zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
     *) git log --color=always $word ;;
     esac'
 zstyle ':fzf-tab:complete:git-*:*' fzf-flags --height=85% --preview-window=right:75%:wrap
-
-# Aliases
-alias ls='ls --color'
-alias c='clear'
-
-# 1Password Plugin manager
-source ${XDG_CONFIG_HOME:-$HOME/.config}/op/plugins.sh
-# Use 1Password for SSH keys
-export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock

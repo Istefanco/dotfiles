@@ -40,6 +40,11 @@ inline = "autoload -Uz compinit && zsh-defer compinit"
 # Deferred plugins
 # ----------------
 
+[plugins.local-config]
+local = "~/.config/zsh"
+use = ["*.zsh"]
+apply = ["defer"]
+
 [plugins.zoxide]
 inline = "zsh-defer -c 'eval \"$(zoxide init zsh --cmd cd)\"'"
 
