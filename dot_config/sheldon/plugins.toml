@@ -34,6 +34,10 @@ use = ["{completion,key-bindings}.zsh"]
 [plugins.zsh-defer]
 github = "romkatv/zsh-defer"
 
+[plugins.powerlevel10k]
+github = "romkatv/powerlevel10k"
+hooks.post = "source ~/.config/zsh/themes/.p10k.zsh"
+
 [plugins.compinit]
 inline = "autoload -Uz compinit && zsh-defer compinit"
 
