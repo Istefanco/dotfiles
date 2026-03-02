@@ -100,6 +100,10 @@ export FZF_CTRL_R_OPTS='--prompt="History> " --preview="echo {}" --preview-windo
 # These variables must be set BEFORE the plugins load (which happens in .zshrc
 # via sheldon). "typeset -g" declares a global variable visible to plugin code.
 #
+# powerlevel10k: tell p10k where its config file lives so that `p10k configure`
+# writes to the correct location (instead of the default ~/.p10k.zsh).
+typeset -g POWERLEVEL9K_CONFIG_FILE=~/.config/zsh/themes/.p10k.zsh
+
 # zsh-autosuggestions: shows faded inline suggestions as you type, based on
 # history and completions.
 typeset -g ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=30          # skip suggestions for very long input (perf)
