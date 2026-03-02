@@ -34,7 +34,7 @@
 [includeIf "gitdir:~/work/"]
     path = .gitconfig-work
 [init]
-	templateDir = /Users/igor.stefanco/.git-templates
+	templateDir = ~/.git-templates
 [secrets]
 	providers = git secrets --aws-provider
 	patterns = (A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{16}
