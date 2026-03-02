@@ -1,5 +1,22 @@
-# Ensure .zprofile runs in non-login interactive shells
-# (many terminal emulators don't start login shells by default)
+# ~/.zshenv - Zsh Environment File
+# ==================================
+# This is the FIRST file zsh reads for EVERY shell invocation — login shells,
+# interactive shells, scripts, even one-off `zsh -c "..."` commands.
+# Because it always runs, only put truly universal setup here.
+# Avoid anything slow or interactive (prompts, completions, key bindings).
+#
+# Loading order: zshenv → zprofile (login) → zshrc (interactive) → zlogin (login)
+
+# Normally, .zprofile only runs for "login" shells (e.g., when you first log in
+# or open a new terminal tab configured as a login shell). However, many terminal
+# emulators (like VS Code's integrated terminal) launch non-login interactive shells,
+# which would skip .zprofile entirely — meaning PATH, Homebrew, and env vars
+# wouldn't be set. This block detects that situation and manually sources .zprofile.
+#
+# Conditions checked:
+#   SHLVL -eq 1    → this is the top-level shell (not a nested shell-in-a-shell)
+#   ! -o LOGIN     → this is NOT a login shell (login shells already source .zprofile)
+#   -s .zprofile   → the .zprofile file exists and is non-empty
 if [[ ( "$SHLVL" -eq 1 && ! -o LOGIN ) && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprofile"
 fi

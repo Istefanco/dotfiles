@@ -1,90 +1,179 @@
-# Powerlevel10k instant prompt (must stay at the top of .zshrc)
+# ~/.zshrc - Zsh Interactive Shell Configuration
+# =================================================
+# Loaded ONLY for interactive shells (after .zshenv and .zprofile).
+# This is where you put everything related to the interactive experience:
+# prompt, completions, key bindings, plugins, history, etc.
+#
+# Loading order: zshenv → zprofile → [zshrc] → zlogin (login only)
+
+# --- Powerlevel10k Instant Prompt ---
+# This MUST stay at the very top of .zshrc (before any other output).
+# p10k's "instant prompt" caches the prompt from the previous session and displays
+# it immediately while the rest of the shell initializes in the background.
+# This makes your terminal appear to load instantly even though plugins are
+# still being set up. The (%):-%n prompt expansion resolves to the current username.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# History
+# ==========================
+# History Configuration
+# ==========================
 HISTFILE=~/.zsh_history
-HISTSIZE=50000
-SAVEHIST=50000
+HISTSIZE=50000     # max entries kept in memory during a session
+SAVEHIST=50000     # max entries saved to the history file
+
+# Don't record these trivial/noisy commands in history.
 HISTORY_IGNORE="(ls|ll|la|cd|pwd|exit|clear|history|top|htop|rm|cp|mv|less|more|vim|code|which|man|df|du|free|ps|kill|:q)"
 
+# "setopt" enables zsh options. These control how history is recorded and searched:
+#   EXTENDED_HISTORY        → save timestamp and duration with each command
+#   HIST_EXPIRE_DUPS_FIRST  → when history is full, drop duplicates before unique entries
+#   HIST_FCNTL_LOCK         → use OS-level file locking for the history file (prevents corruption)
+#   HIST_FIND_NO_DUPS       → when searching history, skip duplicates
+#   HIST_IGNORE_ALL_DUPS    → if a command is already in history, remove the older entry
+#   HIST_IGNORE_SPACE       → commands starting with a space are not recorded (useful for secrets)
+#   HIST_NO_FUNCTIONS       → don't record function definitions
+#   HIST_NO_STORE           → don't record the `history` command itself
+#   HIST_REDUCE_BLANKS      → trim unnecessary whitespace from commands
+#   HIST_SAVE_NO_DUPS       → don't write duplicates to the history file
+#   HIST_VERIFY             → when using history expansion (!!), show the command first, don't run it
+#   INC_APPEND_HISTORY      → write to history file immediately (not just on shell exit),
+#                              so commands are shared across concurrent sessions
 setopt EXTENDED_HISTORY HIST_EXPIRE_DUPS_FIRST HIST_FCNTL_LOCK HIST_FIND_NO_DUPS \
     HIST_IGNORE_ALL_DUPS HIST_IGNORE_SPACE HIST_NO_FUNCTIONS \
     HIST_NO_STORE HIST_REDUCE_BLANKS HIST_SAVE_NO_DUPS HIST_VERIFY \
     INC_APPEND_HISTORY
+# Disable the terminal bell when history search finds no match.
 unsetopt HIST_BEEP
 
-# Plugins via sheldon (https://sheldon.cli.rs)
+# ==========================
+# Plugins (via sheldon)
+# ==========================
+# Sheldon (https://sheldon.cli.rs) is a fast, configurable plugin manager for zsh.
+# `sheldon source` reads ~/.config/sheldon/plugins.toml and outputs a shell script
+# that sources all configured plugins in order. `builtin source` uses zsh's built-in
+# source command (bypassing any aliases or functions that might shadow it).
+#
+# The plugin loading order and deferred loading strategy are defined in plugins.toml.
+# See that file for details on what gets loaded and when.
 builtin source <(sheldon source)
 
-# Set emacs keybindings
+# --- Key bindings ---
+# Use emacs-style key bindings (Ctrl+A = beginning of line, Ctrl+E = end, etc.).
+# This is the default for most terminals. The alternative is `bindkey -v` for vim mode.
 bindkey -e
 
-# Completion behavior
+# ==============================
+# Completion System (zstyle)
+# ==============================
+# "zstyle" is zsh's configuration mechanism for its built-in modules (especially
+# the completion system). It uses a hierarchical pattern like ':module:context:*'
+# to apply settings. Think of it like CSS selectors but for shell behavior.
+#
+# The completion system was initialized by sheldon (compinit is called there).
+# These zstyle rules configure HOW completions behave and look.
+
+# --- Completion behavior ---
+# Which completion strategies to try, in order:
+#   _complete     → standard completion
+#   _match        → glob/pattern matching against completions
+#   _approximate  → fuzzy matching (allows typos)
 zstyle ':completion:*' completer _complete _match _approximate
+# Show verbose descriptions alongside completion candidates.
 zstyle ':completion:*' verbose true
+# "matcher-list" controls matching rules (applied in order until one works):
+#   'm:{a-zA-Z}={A-Za-z}'  → case-insensitive matching (a matches A and vice versa)
+#   'r:|[._-]=* r:|=*'     → partial-word completion: "f.b" matches "foo.bar"
+#   'l:|=* r:|=*'          → substring matching: "bar" matches "foobar"
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+# Complete . and .. as special directory entries.
 zstyle ':completion:*' special-dirs true
+# Treat // in paths as / (don't interpret as a network path).
 zstyle ':completion:*' squeeze-slashes true
 
-# Completion performance
+# --- Completion performance ---
+# Accept an exact match immediately without expanding further. (N) = NULL_GLOB.
 zstyle ':completion:*' accept-exact '*(N)'
+# Sort completions by file modification time (most recent first).
 zstyle ':completion:*' file-sort modification
+# Cache completion results to disk so they don't need to be regenerated.
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "${XDG_CACHE_HOME:-$HOME/.cache}/.zcompcache"
 
-# Completion visuals
+# --- Completion visuals ---
+# Group completions by type (files, directories, options, etc.).
 zstyle ':completion:*' group-name ''
+# Use LS_COLORS to colorize file completions (matches your `ls` colors).
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+# Disable the default menu selection (fzf-tab takes over this role instead).
 zstyle ':completion:*' menu no
+# Format strings shown as headers for each completion group.
 zstyle ':completion:*:descriptions' format '-- %d --'
 zstyle ':completion:*:messages' format '%F{purple}-- %d --%f'
 zstyle ':completion:*:warnings' format '%F{red}-- no matches found --%f'
 
-# Hide internal functions and sort tweaks
+# --- Completion filtering ---
+# Hide internal/private functions (those starting with _ or named precmd/preexec).
 zstyle ':completion:*:functions' ignored-patterns '(_*|pre(cmd|exec))'
+# Don't sort git branches during checkout (preserve git's own ordering).
 zstyle ':completion:*:git-checkout:*' sort false
+# When completing process IDs (e.g., for `kill`), show only your own processes.
 zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm"
 
-# fzf-tab settings
+# ==============================
+# fzf-tab Configuration
+# ==============================
+# fzf-tab replaces zsh's built-in completion menu with fzf (fuzzy finder).
+# Instead of cycling through completions with Tab, you get an interactive
+# fuzzy-searchable list with preview windows. These zstyle rules configure
+# fzf-tab's behavior for different completion contexts.
+
+# Global fzf-tab settings: press Space to accept, use , and . to switch groups.
 zstyle ':fzf-tab:*' fzf-bindings 'space:accept'
 zstyle ':fzf-tab:*' switch-group ',' '.'
 
-# fzf-tab: process preview (kill)
+# Preview: when completing process IDs for `kill`, show the process command name.
 zstyle ':fzf-tab:complete:kill:argument-rest' fzf-preview \
     '[[ $group == "[process ID]" ]] && ps -p $word -o comm='
 zstyle ':fzf-tab:complete:kill:argument-rest' fzf-flags --preview-window=down:10:wrap
 
-# fzf-tab: directory preview (cd/zoxide)
+# Preview: when completing directories for `cd` (or zoxide's `cd`), show contents
+# using eza with icons and git info.
 zstyle ':fzf-tab:complete:cd:*' fzf-preview \
     'eza -1lh --icons --git-ignore --group-directories-first --sort=accessed --color=always $realpath'
 zstyle ':fzf-tab:complete:cd:*' fzf-flags --height=35% --preview-window=right:65%
 
-# fzf-tab: environment variable preview
+# Preview: when completing environment variables (export, unset, etc.), show
+# the variable's current value. ${(P)word} is a zsh parameter expansion that
+# dereferences a variable name — it looks up the value of the variable whose
+# name is stored in $word.
 zstyle ':fzf-tab:complete:(-parameter-|-brace-parameter-|export|unset|expand):*' \
     fzf-preview 'echo ${(P)word}'
 zstyle ':fzf-tab:complete:(-parameter-|-brace-parameter-|export|unset|expand):*' \
     fzf-flags --preview-window=down:10:wrap
 
-# fzf-tab: man/tldr preview
+# Preview: when completing `man` or `tldr` arguments, show the man page or tldr summary.
 zstyle ':fzf-tab:complete:(\\|*/|)man:*' fzf-preview 'man $word'
 zstyle ':fzf-tab:complete:tldr:argument-1' fzf-preview 'tldr --color always $word'
 
-# fzf-tab: command preview (tries tldr, then man, then which)
+# Preview: when completing any command name (the first word on the line), try
+# tldr first, then man page, then `which` to show the command's location.
 zstyle ':fzf-tab:complete:-command-:*' fzf-preview \
     '(out=$(tldr --color always "$word" 2>/dev/null) && echo "$out" || \
     out=$(MANWIDTH=$FZF_PREVIEW_COLUMNS man "$word" 2>/dev/null) && echo "$out" || \
     out=$(which "$word") && echo "$out" || echo "${(P)word}")'
 zstyle ':fzf-tab:complete:-command-:*' fzf-flags --height=60% --preview-window=right:65%:wrap
 
-# fzf-tab: file preview
+# Preview: when completing file arguments for common commands, show file contents.
+# Uses `less` for previewing. Different commands get different preview window sizes.
 zstyle ':fzf-tab:complete:(cat|bat|code|vim|eza|ls|fd|find|cp|mv|rm):argument-rest' \
     fzf-preview 'less ${(Q)realpath}'
 zstyle ':fzf-tab:complete:(cat|bat|code|vim):argument-rest' fzf-flags --height=75% --preview-window=right:75%
 zstyle ':fzf-tab:complete:(eza|ls|fd|find|cp|mv|rm):argument-rest' fzf-flags --height=45% --preview-window=right:65%
 
-# fzf-tab: git preview
+# Preview: git subcommand-specific previews.
+# Each uses the appropriate git command piped through `delta` (a fancy diff viewer).
 zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview 'git diff $word | delta'
 zstyle ':fzf-tab:complete:git-log:*' fzf-preview 'git log --color=always $word'
 zstyle ':fzf-tab:complete:git-help:*' fzf-preview 'git help $word | bat -plman --color=always'

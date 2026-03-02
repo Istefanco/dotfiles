@@ -1,48 +1,114 @@
-# Deduplicate PATH and FPATH entries
+# ~/.zprofile - Zsh Login Profile
+# =================================
+# Normally loaded ONLY for login shells (after .zshenv, before .zshrc).
+# However, our .zshenv also sources this for non-login interactive shells so that
+# environment variables and PATH are always available regardless of how the
+# terminal was launched. This file runs BEFORE .zshrc.
+#
+# This is the right place for:
+#   - Environment variables (XDG, EDITOR, etc.)
+#   - PATH modifications
+#   - Plugin configuration variables (must be set before plugins load in .zshrc)
+#
+# Loading order: zshenv → [zprofile] → zshrc (interactive) → zlogin (login)
+
+# --- PATH / FPATH deduplication ---
+# "typeset -U" marks these arrays as "unique" — zsh will automatically remove
+# duplicate entries. This prevents PATH from growing with repeated entries when
+# shells are nested or .zprofile is re-sourced.
 typeset -U PATH path FPATH fpath
 
-# XDG Base Directory Specification
+# --- XDG Base Directory Specification ---
+# A freedesktop.org standard that defines where apps should store their files.
+# Many CLI tools respect these, keeping $HOME clean instead of littering dotfiles.
+#   XDG_CONFIG_HOME → config files (like ~/.config/git/config)
+#   XDG_DATA_HOME   → persistent data (like ~/.local/share/chezmoi)
+#   XDG_CACHE_HOME  → disposable cache (like ~/.cache/zcompdump)
+#   XDG_STATE_HOME  → state that persists between restarts but isn't important
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
 
-# Homebrew
+# --- Homebrew ---
+# Check if Homebrew is installed at Apple Silicon's default location, and if so,
+# run its shell setup script. `brew shellenv` adds Homebrew's bin, sbin, and
+# man/info paths to the environment.
 if [[ -f "/opt/homebrew/bin/brew" ]] then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
+# Prevent Homebrew from auto-updating every time you install something (slow).
+# Disable Homebrew's anonymous analytics telemetry.
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_ANALYTICS=1
 
-# PATH
+# --- PATH ---
+# Add personal bin directories to PATH. The (N) glob qualifier means "NULL_GLOB":
+# if the directory doesn't exist, it silently expands to nothing instead of
+# producing an error. This makes the config portable across machines.
 path=(
     $HOME/.local/bin(N)
     $HOME/bin(N)
     $path
 )
 
-# System utilities
+# --- Default programs ---
+# EDITOR  → used by CLI tools (git commit, crontab -e) for editing files.
+# VISUAL  → used when a "visual" (full-screen) editor is preferred; most tools
+#            fall back to EDITOR if VISUAL isn't set.
+# --wait  → tells VS Code to block the calling process until the file is closed,
+#            which is needed for git commit messages, etc.
+# PAGER   → program used to view long output (man pages, git log, etc.).
 export EDITOR="code --wait"
 export VISUAL="code --wait"
 export PAGER=less
 
-# FZF Configuration
+# --- FZF (fuzzy finder) configuration ---
+# These env vars configure fzf's behavior globally. fzf is a command-line fuzzy
+# finder used by Ctrl+T (file search), Ctrl+R (history search), and fzf-tab.
+#
+# FZF_DEFAULT_COMMAND: what command fzf uses to generate the file list.
+#   Uses `fd` (a fast `find` alternative) to list files, following symlinks,
+#   including hidden files, but excluding .git and node_modules.
 export FZF_DEFAULT_COMMAND='fd --type file --follow --hidden --exclude .git --exclude node_modules'
+
+# FZF_DEFAULT_OPTS: default options applied to every fzf invocation.
+#   --height=35%  → use only 35% of terminal height (doesn't take over screen)
+#   --layout=reverse → show results top-to-bottom (input prompt at top)
+#   --border      → draw a border around the finder
+#   --cycle       → wrap around when reaching the top/bottom of the list
+#   --multi       → allow selecting multiple items with Tab
+#   --info=inline → show match count inline with the prompt
 export FZF_DEFAULT_OPTS='--height=35% --layout=reverse --border --cycle --multi --info=inline'
+
+# FZF_CTRL_T_COMMAND / FZF_CTRL_T_OPTS: configure the Ctrl+T file picker.
+#   Shows a large preview window using `bat` (syntax-highlighted cat) for files,
+#   or `eza --tree` for directories. Keybinds: ? toggles preview, Ctrl+A selects all,
+#   Tab/Shift+Tab toggle individual selections.
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_T_OPTS="--height=90% --preview-window=right:65% \
 --preview '([[ -f {} ]] && bat --style=numbers,header,grid --color=always {}) || ([[ -d {} ]] && (eza --tree -I node_modules --git-ignore {} | less)) || echo {} 2>/dev/null | head -200' \
 --bind '?:toggle-preview,ctrl-a:select-all' \
 --bind 'tab:toggle+down,shift-tab:toggle+up'"
+
+# FZF_CTRL_R_OPTS: configure the Ctrl+R history search.
+#   Adds a "History>" prompt label and a small preview of the selected command.
 export FZF_CTRL_R_OPTS='--prompt="History> " --preview="echo {}" --preview-window=down:3:wrap'
 
-# Plugin config (set before plugins load)
-typeset -g ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=30
-typeset -g ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=240'
-typeset -g ZSH_AUTOSUGGEST_MANUAL_REBIND=true
-typeset -g ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+# --- Plugin pre-configuration ---
+# These variables must be set BEFORE the plugins load (which happens in .zshrc
+# via sheldon). "typeset -g" declares a global variable visible to plugin code.
+#
+# zsh-autosuggestions: shows faded inline suggestions as you type, based on
+# history and completions.
+typeset -g ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=30          # skip suggestions for very long input (perf)
+typeset -g ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=240'    # gray color for the suggestion text
+typeset -g ZSH_AUTOSUGGEST_MANUAL_REBIND=true           # don't auto-rebind widgets (faster startup)
+typeset -g ZSH_AUTOSUGGEST_STRATEGY=(history completion) # look in history first, then completions
 
-typeset -g HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=true
-typeset -g HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND='fg=#00cc00,bold'
-typeset -g HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND='fg=#FF5C57,bold'
+# zsh-history-substring-search: lets you type part of a command and use Up/Down
+# arrows to cycle through matching history entries.
+typeset -g HISTORY_SUBSTRING_SEARCH_ENSURE_UNIQUE=true                   # skip duplicate matches
+typeset -g HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND='fg=#00cc00,bold'    # green highlight for matches
+typeset -g HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND='fg=#FF5C57,bold' # red highlight for no match

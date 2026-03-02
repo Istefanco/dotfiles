@@ -1,6 +1,19 @@
-# mise-en-place https://mise.jdx.dev/
+# Tool Initialization
+# ====================
+# Loaded via sheldon's "local-config" plugin (deferred).
+# This file is sourced asynchronously after the prompt appears.
+# Tools that need to inject shell functions/hooks are initialized here.
+
+# mise (formerly rtx) — a polyglot runtime version manager (like nvm, rbenv,
+# pyenv, etc. but for all languages in one tool). `mise activate zsh` injects
+# shell hooks so that when you `cd` into a project with a .tool-versions or
+# mise.toml file, it automatically switches to the correct language versions.
 eval "$($HOME/.local/bin/mise activate zsh)"
 
-# 1Password
+# 1Password CLI shell integration — sources plugin hooks that let CLI tools
+# (like gh, npm) use 1Password for credential storage and retrieval.
 source ${XDG_CONFIG_HOME:-$HOME/.config}/op/plugins.sh
+
+# Point SSH at 1Password's SSH agent so that SSH keys stored in 1Password
+# are used for git, ssh, scp, etc. without needing keys on disk.
 export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock

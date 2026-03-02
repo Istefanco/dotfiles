@@ -1,78 +1,169 @@
+# Sheldon Plugin Manager Configuration
+# ======================================
+# Sheldon (https://sheldon.cli.rs) manages zsh plugins. It's called from .zshrc
+# via `sheldon source`, which reads this file and outputs a shell script that
+# loads all plugins in the order defined below.
+#
+# PLUGIN LOADING ORDER MATTERS. The order in this file is the order things
+# get sourced. Some plugins depend on others being loaded first (noted below).
+#
+# Loading strategy overview:
+#   1. PATH/FPATH plugins   → just add directories, no code runs (instant)
+#   2. Immediately sourced  → zsh-defer, fzf, powerlevel10k (needed early)
+#   3. Deferred plugins     → sourced asynchronously after prompt appears (via zsh-defer)
+#   4. More-deferred plugins → sourced after a 0.5s delay (lowest priority)
+
 shell = "zsh"
 
+# ==========================
+# Custom Templates
+# ==========================
+# Templates define HOW plugins are loaded. Sheldon uses Jinja2-like syntax.
+# These are referenced by plugins below via `apply = ["template-name"]`.
+
 [templates]
+# "defer": source each plugin file using zsh-defer (runs after prompt is displayed).
+# This keeps the shell responsive — the user sees the prompt immediately while
+# plugins finish loading in the background.
+#   {{ hooks?.pre | nl }}  → run any pre-hooks before sourcing
+#   {% for file in files %} → loop over the plugin's matched files
+#   {{ hooks?.post | nl }} → run any post-hooks after sourcing
 defer = """{{ hooks?.pre | nl }}{% for file in files %}zsh-defer source "{{ file }}"\n{% endfor %}{{ hooks?.post | nl }}"""
+
+# "defer-more": same as defer, but with a 0.5s delay (`-t 0.5`).
+# Used for lower-priority plugins that can afford to load even later.
 defer-more = """{{ hooks?.pre | nl }}{% for file in files %}zsh-defer -t 0.5 source "{{ file }}"\n{% endfor %}{{ hooks?.post | nl }}"""
+
+# "fpath": add the plugin's directory to fpath (where zsh looks for completion functions).
+# No code is sourced — this just makes completion definitions discoverable.
 fpath = 'fpath=( "{{ dir }}" $fpath )'
+
+# "path": add the plugin's directory to PATH (where the shell looks for executables).
 path = 'path=( "{{ dir }}" $path )'
 
-# Paths
-# -----
+# ==============================
+# PATH-only plugins (instant)
+# ==============================
+# These don't source any code — they just make executables available in PATH.
 
+# git-open: adds the `git open` command which opens the repo's GitHub/GitLab
+# page in your browser.
 [plugins.git-open]
 github = "paulirish/git-open"
 apply = ["path"]
 
+# zsh-bench: adds the `zsh-bench` command for benchmarking shell startup time.
+# Useful for measuring the impact of plugin changes.
 [plugins.zsh-bench]
 github = "romkatv/zsh-bench"
 apply = ["path"]
 
-# Completions
-# -----------
+# ==============================
+# Completions (fpath only)
+# ==============================
+# These add completion definitions to fpath but don't source scripts.
+# The actual completion system (compinit) is initialized later.
 
+# zsh-completions: a large collection of completion definitions for common
+# commands (docker, cargo, rustup, fd, etc.) that aren't included in zsh by default.
 [plugins.zsh-completions]
 github = "zsh-users/zsh-completions"
 apply = ["fpath"]
 
+# fzf: sources fzf's built-in completion (e.g., **<Tab>) and key bindings
+# (Ctrl+T for files, Ctrl+R for history, Alt+C for cd).
 [plugins.fzf]
 github = "junegunn/fzf"
 use = ["{completion,key-bindings}.zsh"]
 
-# Sourced
-# -------
+# ==============================
+# Sourced immediately
+# ==============================
+# These plugins are sourced right away because other things depend on them.
 
+# zsh-defer: a utility that lets you defer (delay) the sourcing of other plugins
+# until after the prompt is displayed. MUST load before any plugin that uses
+# the "defer" or "defer-more" templates.
 [plugins.zsh-defer]
 github = "romkatv/zsh-defer"
 
+# powerlevel10k: the prompt theme. Sourced immediately so the prompt renders
+# right away (combined with instant prompt from .zshrc for near-zero latency).
+# The post-hook sources the p10k configuration file which defines the prompt's
+# appearance (segments, colors, icons, etc.).
 [plugins.powerlevel10k]
 github = "romkatv/powerlevel10k"
 hooks.post = "source ~/.config/zsh/themes/.p10k.zsh"
 
+# compinit: initializes zsh's completion system.
+# "autoload -Uz compinit" tells zsh to lazily load the compinit function
+#   -U = don't expand aliases during loading
+#   -z = use zsh-style function loading
+# The actual compinit call is deferred via zsh-defer so it doesn't block
+# the prompt. Completions won't be available for the first ~100ms, which is
+# imperceptible in practice.
 [plugins.compinit]
 inline = "autoload -Uz compinit && zsh-defer compinit"
 
+# ==============================
 # Deferred plugins
-# ----------------
+# ==============================
+# These are sourced asynchronously after the prompt appears (via zsh-defer).
+# The user sees a working prompt immediately; these load in the background.
 
+# local-config: sources all *.zsh files from ~/.config/zsh/ (aliases.zsh,
+# tools.zsh, work.zsh). These are your personal config modules.
 [plugins.local-config]
 local = "~/.config/zsh"
 use = ["*.zsh"]
 apply = ["defer"]
 
+# zoxide: a smarter `cd` that learns your most-used directories.
+# `--cmd cd` replaces the built-in `cd` command with zoxide, so `cd foo` uses
+# zoxide's fuzzy matching. Deferred because it's not needed until you actually
+# type a `cd` command.
 [plugins.zoxide]
 inline = "zsh-defer -c 'eval \"$(zoxide init zsh --cmd cd)\"'"
 
-# fzf-tab needs to be loaded after compinit, but before plugins which will wrap
-# widgets, such as zsh-autosuggestions or fast-syntax-highlighting
+# fzf-tab: replaces zsh's default Tab completion menu with an fzf-powered
+# interactive fuzzy finder. MUST load after compinit (completion system) but
+# BEFORE plugins that wrap zsh widgets (like zsh-autosuggestions or
+# fast-syntax-highlighting), otherwise those plugins won't know about fzf-tab's
+# widgets and keybinding integration will break.
 [plugins.fzf-tab]
 github = "Aloxaf/fzf-tab"
 use = ["{{ name }}.plugin.zsh"]
 apply = ["defer"]
 
+# fast-syntax-highlighting: highlights commands as you type them (green = valid
+# command, red = not found, underline = valid path, etc.). Provides visual
+# feedback before you even press Enter.
 [plugins.fast-syntax-highlighting]
 github = "zdharma-continuum/fast-syntax-highlighting"
 apply = ["defer"]
 
-# More deferred plugins (0.5s delay)
-# -----------------------------------
+# ==============================
+# More-deferred plugins (0.5s delay)
+# ==============================
+# These load 0.5 seconds after the prompt, giving higher-priority plugins
+# time to finish first.
 
-# Must load AFTER fast-syntax-highlighting
+# zsh-history-substring-search: lets you type part of a command then press
+# Up/Down arrows to cycle through only matching history entries.
+# MUST load AFTER fast-syntax-highlighting — it hooks into the syntax
+# highlighter's widget chain, and loading in the wrong order breaks the
+# highlighting of search results.
+# The post-hook binds the Up/Down arrow keys to the substring search.
 [plugins.zsh-history-substring-search]
 github = "zsh-users/zsh-history-substring-search"
 use = ["{{ name }}.zsh"]
 apply = ["defer-more"]
 hooks.post = "bindkey '^[[A' history-substring-search-up; bindkey '^[[B' history-substring-search-down"
 
+# zsh-autosuggestions: shows a faded inline suggestion as you type, based on
+# your command history and available completions. Press Right arrow or End to
+# accept the suggestion. Configuration variables are set in .zprofile so they're
+# available before this plugin loads.
 [plugins.zsh-autosuggestions]
 github = "zsh-users/zsh-autosuggestions"
 use = ["{{ name }}.zsh"]
