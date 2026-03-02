@@ -59,9 +59,9 @@ github = "romkatv/zsh-bench"
 apply = ["path"]
 
 # ==============================
-# Completions (fpath only)
+# Completions
 # ==============================
-# These add completion definitions to fpath but don't source scripts.
+# Plugins that provide or enable tab-completion functionality.
 # The actual completion system (compinit) is initialized later.
 
 # zsh-completions: a large collection of completion definitions for common
@@ -167,4 +167,12 @@ hooks.post = "bindkey '^[[A' history-substring-search-up; bindkey '^[[B' history
 [plugins.zsh-autosuggestions]
 github = "zsh-users/zsh-autosuggestions"
 use = ["{{ name }}.zsh"]
+apply = ["defer-more"]
+
+# zsh-you-should-use: reminds you when you type a command that has an alias.
+# e.g., typing `pipelinectl` when you have `pc` aliased will print:
+#   "Found existing alias for 'pipelinectl'. You should use: 'pc'"
+# Helps build muscle memory for your own aliases.
+[plugins.you-should-use]
+github = "MichaelAquilina/zsh-you-should-use"
 apply = ["defer-more"]

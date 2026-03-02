@@ -9,9 +9,12 @@ export PGUSER=postgres
 export PGPASSWORD=postgres
 
 # Work PATH entries
-export PATH="$PATH:$HOME/work/infrastructure/bin"
-export PATH="$HOMEBREW_PREFIX/opt/libpq@16/bin:$PATH"
-export PATH="$HOME/.rd/bin:$PATH"
+path=(
+    $HOMEBREW_PREFIX/opt/libpq@16/bin(N)
+    $HOME/.rd/bin(N)
+    $path
+    $HOME/work/infrastructure/bin(N)
+)
 
 export FIREFOX_TESTS_PATH=~/work/test-firefox/Firefox.app/Contents/MacOS/firefox-bin
 export RUBY_DEBUG_OPEN=true

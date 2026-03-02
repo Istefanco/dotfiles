@@ -24,7 +24,7 @@ HISTSIZE=50000     # max entries kept in memory during a session
 SAVEHIST=50000     # max entries saved to the history file
 
 # Don't record these trivial/noisy commands in history.
-HISTORY_IGNORE="(ls|ll|la|cd|pwd|exit|clear|history|top|htop|rm|cp|mv|less|more|vim|code|which|man|df|du|free|ps|kill|:q)"
+HISTORY_IGNORE="(ls|ll|la|cd|pwd|exit|clear|history|top|htop|cp|mv|less|more|vim|code|which|man|df|du|free|ps|kill|:q)"
 
 # "setopt" enables zsh options. These control how history is recorded and searched:
 #   EXTENDED_HISTORY        → save timestamp and duration with each command
@@ -46,6 +46,15 @@ setopt EXTENDED_HISTORY HIST_EXPIRE_DUPS_FIRST HIST_FCNTL_LOCK HIST_FIND_NO_DUPS
     INC_APPEND_HISTORY
 # Disable the terminal bell when history search finds no match.
 unsetopt HIST_BEEP
+
+# --- Shell behavior ---
+#   AUTO_CD              → type a directory name to cd into it (no `cd` prefix needed)
+#   AUTO_PUSHD           → cd pushes the old directory onto the directory stack,
+#                          letting you use `cd -<Tab>` to see recent directories
+#   PUSHD_IGNORE_DUPS    → don't push duplicate entries onto the directory stack
+#   INTERACTIVE_COMMENTS → allow # comments in interactive shell (useful for
+#                          annotating one-liners or pasting code with comments)
+setopt AUTO_CD AUTO_PUSHD PUSHD_IGNORE_DUPS INTERACTIVE_COMMENTS
 
 # ==========================
 # Plugins (via sheldon)

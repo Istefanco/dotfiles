@@ -2,6 +2,8 @@
 
 Managed using [chezmoi](https://www.chezmoi.io/)
 
+A lot of the zsh content and structure was inspired by [this article](https://towardsthecloud.com/notes/zsh-config#configuration-files).
+
 ## TODO
 
 ### Machine Specific Configuration
