@@ -17,6 +17,13 @@
 [user]
 	email = istefanco@gmail.com
 	name = Igor Stefanco
+	signingkey = key::ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGch7te30wqNk5F8W8N3eBVS7vAh9/3ZQANEf4z+fCZa GitHub - Personal
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	allowedSignersFile = ~/.ssh/allowed_signers
+[commit]
+	gpgsign = true
 [push]
 	autoSetupRemote = true
 [alias]

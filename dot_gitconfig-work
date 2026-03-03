@@ -1,3 +1,4 @@
 [user]
 	email = igor.stefanco@greenhouse.io
 	name = Igor Stefanco
+	signingkey = key::ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILXC0N7X2BtkwNsV82k5cjsb02svM2yZXfQ72Sk6vhOW Github
