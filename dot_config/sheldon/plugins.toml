@@ -70,6 +70,16 @@ apply = ["path"]
 github = "zsh-users/zsh-completions"
 apply = ["fpath"]
 
+# local-completions: completions generated from tools installed on this machine
+# (e.g., docker, kubectl, helm) that aren't covered by zsh-completions or Homebrew.
+# Files live in ~/.config/zsh/completions/ and are NOT managed by chezmoi since
+# they're machine-specific. Regenerate with:
+#   regen-completions       → general tools (docker, kubectl, helm) — defined in functions.zsh
+#   regen-work-completions  → work tools (lotus, pipelinectl) — defined in work.zsh
+[plugins.local-completions]
+local = "~/.config/zsh/completions"
+apply = ["fpath"]
+
 # fzf: sources fzf's built-in completion (e.g., **<Tab>) and key bindings
 # (Ctrl+T for files, Ctrl+R for history, Alt+C for cd).
 [plugins.fzf]
