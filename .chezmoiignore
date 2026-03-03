@@ -1,3 +1,4 @@
 {{- if ne .machine_type "work" }}
 dot_config/zsh/work.zsh
+dot_gitconfig-work
 {{- end }}
