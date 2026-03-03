@@ -11,6 +11,9 @@
     colorMoved = default
 [delta]
     navigate = true    # use n and N to move between diff sections
+    features = catppuccin-macchiato
+[include]
+    path = ~/.config/delta/catppuccin.gitconfig
 [user]
 	email = istefanco@gmail.com
 	name = Igor Stefanco
