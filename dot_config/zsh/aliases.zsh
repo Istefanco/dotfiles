@@ -6,10 +6,10 @@
 # which is fine since you can't type a command that fast anyway.
 
 # eza — a modern ls replacement (https://eza.rocks)
-alias ls='eza --icons'
-alias ll='eza -la --icons --git'
-alias la='eza -a --icons'
-alias tree='eza --tree --icons --git-ignore'
+alias ls='eza --icons=auto --group-directories-first'
+alias ll='eza -la --icons=auto --header --git --group-directories-first'
+alias la='eza -a --icons=auto --group-directories-first'
+alias tree='eza --tree --icons=auto --git-ignore --group-directories-first'
 
 # bat — a cat replacement with syntax highlighting (https://github.com/sharkdp/bat)
 alias cat='bat'
