@@ -8,7 +8,7 @@
 # pyenv, etc. but for all languages in one tool). `mise activate zsh` injects
 # shell hooks so that when you `cd` into a project with a .tool-versions or
 # mise.toml file, it automatically switches to the correct language versions.
-eval "$($HOME/.local/bin/mise activate zsh)"
+eval "$(mise activate zsh)"
 
 # 1Password CLI shell integration — sources plugin hooks that let CLI tools
 # (like gh, npm) use 1Password for credential storage and retrieval.
