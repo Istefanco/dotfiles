@@ -2,3 +2,7 @@
 dot_config/zsh/work.zsh
 dot_gitconfig-work
 {{- end }}
+{{- if eq .chezmoi.os "linux" }}
+dot_config/ghostty
+dot_config/alacritty
+{{- end }}

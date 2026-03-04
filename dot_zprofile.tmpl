@@ -30,6 +30,7 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
 
+{{ if eq .chezmoi.os "darwin" -}}
 # --- Homebrew ---
 # Check if Homebrew is installed at Apple Silicon's default location, and if so,
 # run its shell setup script. `brew shellenv` adds Homebrew's bin, sbin, and
@@ -42,6 +43,7 @@ fi
 # Disable Homebrew's anonymous analytics telemetry.
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_NO_ANALYTICS=1
+{{- end }}
 
 # --- PATH ---
 # Add personal bin directories to PATH. The (N) glob qualifier means "NULL_GLOB":

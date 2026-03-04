@@ -16,4 +16,8 @@ source ${XDG_CONFIG_HOME:-$HOME/.config}/op/plugins.sh
 
 # Point SSH at 1Password's SSH agent so that SSH keys stored in 1Password
 # are used for git, ssh, scp, etc. without needing keys on disk.
+{{- if eq .chezmoi.os "darwin" }}
 export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+{{- else if eq .chezmoi.os "linux" }}
+export SSH_AUTH_SOCK=~/.1password/agent.sock
+{{- end }}
