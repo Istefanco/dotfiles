@@ -14,6 +14,7 @@ regen-completions() {
   docker completion zsh > "$dir/_docker"
   kubectl completion zsh > "$dir/_kubectl"
   helm completion zsh > "$dir/_helm"
+  mise completion zsh > "$dir/_mise"
 
   rm -f ~/.zcompdump
   echo "Completions regenerated. Open a new shell to pick them up."
