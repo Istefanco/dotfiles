@@ -163,12 +163,16 @@ apply = ["defer"]
 # MUST load AFTER fast-syntax-highlighting — it hooks into the syntax
 # highlighter's widget chain, and loading in the wrong order breaks the
 # highlighting of search results.
-# The post-hook binds the Up/Down arrow keys to the substring search.
+# The post-hook binds Up/Down arrow keys to the substring search.
+# Arrow keys send different escape sequences depending on terminal mode:
+#   ^[OA / ^[OB   = Up/Down in application mode (what zle actually uses)
+#   ^[[A / ^[[B   = Up/Down in normal mode (fallback for non-standard terminals)
+# We bind both so the plugin works regardless of which mode the terminal is in.
 [plugins.zsh-history-substring-search]
 github = "zsh-users/zsh-history-substring-search"
 use = ["{{ name }}.zsh"]
 apply = ["defer-more"]
-hooks.post = "bindkey '^[[A' history-substring-search-up; bindkey '^[[B' history-substring-search-down"
+hooks.post = "bindkey '^[OA' history-substring-search-up; bindkey '^[OB' history-substring-search-down; bindkey '^[[A' history-substring-search-up; bindkey '^[[B' history-substring-search-down"
 
 # zsh-autosuggestions: shows a faded inline suggestion as you type, based on
 # your command history and available completions. Press Right arrow or End to
