@@ -1,0 +1,10 @@
+{{- if eq .machine_type "personal" -}}
+Host bigboy
+	HostName bigboy
+	User igor
+	ForwardAgent yes
+{{ end -}}
+{{- if eq .chezmoi.os "darwin" }}
+Host *
+	IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+{{- end }}

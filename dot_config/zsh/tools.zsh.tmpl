@@ -19,5 +19,9 @@ source ${XDG_CONFIG_HOME:-$HOME/.config}/op/plugins.sh
 {{- if eq .chezmoi.os "darwin" }}
 export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
 {{- else if eq .chezmoi.os "linux" }}
-export SSH_AUTH_SOCK=~/.1password/agent.sock
+# Only use local 1Password agent if available (requires the desktop app).
+# Usually the agent is forwarded over SSH from the personal Mac instead.
+if [[ -S ~/.1password/agent.sock ]]; then
+  export SSH_AUTH_SOCK=~/.1password/agent.sock
+fi
 {{- end }}
